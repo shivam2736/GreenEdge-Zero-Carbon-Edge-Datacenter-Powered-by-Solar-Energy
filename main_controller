@@ -1,0 +1,25 @@
+# main.py
+import time
+from solar_monitor import SolarMonitor
+from battery_manager import BatteryManager
+from load_balancer import LoadBalancer
+from dashboard import Dashboard
+
+def main():
+    solar = SolarMonitor()
+    battery = BatteryManager()
+    load_balancer = LoadBalancer(battery)
+    dashboard = Dashboard(solar, battery)
+
+    while True:
+        voltage, current, power = solar.read_sensors()
+        battery.charge(power / 1000 * (5/60))  # Convert W to kWh for 5 minutes interval
+
+        # Schedule a dummy task of 1kW for 0.1 hour (6 min)
+        load_balancer.schedule_task(1, 0.1, priority='normal')
+
+        dashboard.display_status()
+        time.sleep(300)  # 5 minutes
+
+if __name__ == "__main__":
+    main()
